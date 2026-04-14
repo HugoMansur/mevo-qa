@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mevo — Hospitais PQS2</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --sidebar-bg:#1a1a2e;
+  --sidebar-accent:#16213e;
+  --card-bg:#ffffff;
+  --body-bg:#f0f2f5;
+  --accent:#10b981;
+  --accent-dark:#059669;
+  --green:#10b981;
+  --green-light:#d1fae5;
+  --red:#ef4444;
+  --red-light:#fee2e2;
+  --amber:#f59e0b;
+  --amber-light:#fef3c7;
+  --blue:#0ea5e9;
+  --blue-light:#e0f2fe;
+  --violet:#8b5cf6;
+  --violet-light:#ede9fe;
+  --sky:#0ea5e9;
+  --sky-light:#e0f2fe;
+  --emerald:#10b981;
+  --emerald-light:#d1fae5;
+  --rose:#f43f5e;
+  --rose-light:#ffe4e6;
+  --orange:#f97316;
+  --orange-light:#ffedd5;
+  --purple:#a855f7;
+  --purple-light:#f3e8ff;
+  --text-primary:#1e293b;
+  --text-secondary:#64748b;
+  --text-muted:#94a3b8;
+  --border:#e2e8f0;
+  --shadow:0 1px 3px rgba(0,0,0,.1),0 1px 2px rgba(0,0,0,.06);
+  --shadow-lg:0 10px 15px -3px rgba(0,0,0,.1),0 4px 6px -2px rgba(0,0,0,.05);
+  --radius:12px;
+  --radius-sm:8px;
+  --transition:all .2s ease;
+}
+html{font-size:15px}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;background:var(--body-bg);color:var(--text-primary);display:flex;min-height:100vh;overflow:hidden}
+
+/* SIDEBAR */
+.sidebar{width:280px;min-width:280px;background:var(--sidebar-bg);color:#e2e8f0;display:flex;flex-direction:column;padding:0;height:100vh;overflow-y:auto;z-index:10}
+.sidebar-header{padding:24px 20px 16px;border-bottom:1px solid rgba(255,255,255,.08)}
+.sidebar-header h1{font-size:1.15rem;font-weight:700;color:#fff;letter-spacing:-.02em}
+.sidebar-header p{font-size:.75rem;color:var(--text-muted);margin-top:4px}
+
+/* Filters */
+.filter-section{padding:16px 20px}
+.filter-section h3{font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);margin-bottom:10px;font-weight:600}
+.filter-btn{display:flex;align-items:center;gap:8px;width:100%;padding:8px 12px;border:none;background:transparent;color:#cbd5e1;font-size:.82rem;cursor:pointer;border-radius:var(--radius-sm);transition:var(--transition);text-align:left}
+.filter-btn:hover{background:rgba(255,255,255,.06)}
+.filter-btn.active{background:rgba(255,255,255,.1);color:#fff;font-weight:600}
+.filter-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.filter-dot.new{background:var(--text-muted)}
+.filter-dot.approved{background:var(--green)}
+.filter-dot.rejected{background:var(--red)}
+.filter-dot.maybe{background:var(--amber)}
+.filter-count{margin-left:auto;font-size:.72rem;background:rgba(255,255,255,.08);padding:2px 8px;border-radius:10px;min-width:24px;text-align:center}
+
+/* Progress ring */
+.progress-section{padding:20px;display:flex;flex-direction:column;align-items:center;border-top:1px solid rgba(255,255,255,.06);border-bottom:1px solid rgba(255,255,255,.06)}
+.progress-ring-container{position:relative;width:100px;height:100px}
+.progress-ring{transform:rotate(-90deg)}
+.progress-ring-bg{fill:none;stroke:rgba(255,255,255,.08);stroke-width:8}
+.progress-ring-fill{fill:none;stroke:var(--accent);stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset .6s ease}
+.progress-text{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:1.4rem;font-weight:700;color:#fff}
+.progress-label{margin-top:8px;font-size:.75rem;color:var(--text-muted)}
+
+/* Stats */
+.stats-section{padding:16px 20px}
+.stat-row{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:.82rem;color:#cbd5e1}
+.stat-row .dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.stat-row .val{margin-left:auto;font-weight:700;color:#fff}
+
+/* Export */
+.export-section{padding:16px 20px;margin-top:auto;border-top:1px solid rgba(255,255,255,.06)}
+.export-btn{width:100%;padding:12px;border:none;border-radius:var(--radius-sm);font-size:.85rem;font-weight:600;cursor:pointer;transition:var(--transition);display:flex;align-items:center;justify-content:center;gap:8px}
+.export-btn.primary{background:var(--accent);color:#fff}
+.export-btn.primary:hover{background:var(--accent-dark)}
+.export-btn.secondary{background:rgba(255,255,255,.06);color:#cbd5e1;margin-top:8px}
+.export-btn.secondary:hover{background:rgba(255,255,255,.12)}
+
+/* Keyboard hints */
+.shortcuts-section{padding:12px 20px 20px;border-top:1px solid rgba(255,255,255,.06)}
+.shortcuts-section h3{font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);margin-bottom:8px;font-weight:600}
+.shortcut-row{display:flex;align-items:center;gap:6px;font-size:.72rem;color:var(--text-muted);padding:3px 0}
+.kbd{background:rgba(255,255,255,.1);padding:2px 6px;border-radius:4px;font-size:.68rem;font-family:monospace;color:#cbd5e1;border:1px solid rgba(255,255,255,.12)}
+
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;height:100vh;overflow:hidden}
+
+/* Top bar */
+.topbar{display:flex;align-items:center;padding:16px 32px;background:#fff;border-bottom:1px solid var(--border);gap:16px;flex-shrink:0}
+.topbar-nav{display:flex;gap:8px}
+.nav-btn{width:40px;height:40px;border-radius:var(--radius-sm);border:1px solid var(--border);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:var(--transition);font-size:1.1rem;color:var(--text-secondary)}
+.nav-btn:hover{background:var(--body-bg);border-color:var(--text-muted)}
+.nav-btn:disabled{opacity:.3;cursor:not-allowed}
+.topbar-counter{font-size:.85rem;color:var(--text-secondary);font-weight:500;margin-left:4px}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:12px}
+.undo-btn{padding:8px 16px;border-radius:var(--radius-sm);border:1px solid var(--border);background:#fff;cursor:pointer;font-size:.8rem;color:var(--text-secondary);transition:var(--transition);display:flex;align-items:center;gap:6px}
+.undo-btn:hover{background:var(--body-bg)}
+.undo-btn:disabled{opacity:.3;cursor:not-allowed}
+
+/* Card area */
+.card-area{flex:1;overflow-y:auto;padding:24px 32px;display:flex;justify-content:center;align-items:flex-start}
+.card-wrapper{width:100%;max-width:780px}
+.card{background:var(--card-bg);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;animation:cardIn .3s ease}
+@keyframes cardIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+@keyframes cardInReverse{from{opacity:0;transform:translateX(-30px)}to{opacity:1;transform:translateX(0)}}
+.card.reverse{animation-name:cardInReverse}
+
+/* Card header */
+.card-header{padding:24px 28px 16px;border-bottom:1px solid var(--border)}
+.card-header-top{display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.card-title{font-size:1.2rem;font-weight:700;color:var(--text-primary);flex:1;line-height:1.3}
+.badge{padding:4px 12px;border-radius:20px;font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
+.badge-status{font-size:.68rem}
+.badge-new{background:#f1f5f9;color:var(--text-muted)}
+.badge-approved{background:var(--green-light);color:#065f46}
+.badge-rejected{background:var(--red-light);color:#991b1b}
+.badge-maybe{background:var(--amber-light);color:#92400e}
+.badge-pqs{background:var(--emerald-light);color:#065f46}
+.badge-tier{background:var(--sky-light);color:#0369a1}
+.card-subtitle{font-size:.88rem;color:var(--text-secondary);margin-top:4px}
+
+/* Chips row */
+.chips-row{display:flex;flex-wrap:wrap;gap:8px;padding:12px 28px 0}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;font-size:.78rem;font-weight:500;background:#f1f5f9;color:var(--text-secondary);text-decoration:none;transition:var(--transition);border:none;cursor:default}
+a.chip{cursor:pointer}
+a.chip:hover{background:var(--blue-light);color:var(--blue)}
+.chip-icon{font-size:.85rem}
+
+/* Stats grid */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:16px 28px}
+.stat-card{background:#f8fafc;border-radius:var(--radius-sm);padding:14px;text-align:center;border:1px solid var(--border)}
+.stat-card .stat-val{font-size:1.3rem;font-weight:800;color:var(--text-primary)}
+.stat-card .stat-lbl{font-size:.68rem;color:var(--text-muted);margin-top:2px;text-transform:uppercase;letter-spacing:.04em;font-weight:600}
+.stat-card.highlight{border-color:var(--accent);background:var(--green-light)}
+
+/* Enrichment section */
+.enrichment-section{padding:12px 28px 4px}
+.enrichment-section h3{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:10px;font-weight:600}
+.enrichment-badges{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.enrichment-badge{padding:5px 14px;border-radius:20px;font-size:.75rem;font-weight:600;display:inline-flex;align-items:center;gap:6px}
+.enrichment-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px 16px}
+.enrichment-item{display:flex;justify-content:space-between;font-size:.82rem;padding:4px 0;border-bottom:1px solid var(--border)}
+.enrichment-item .enrich-label{color:var(--text-muted);font-weight:500}
+.enrichment-item .enrich-value{color:var(--text-primary);font-weight:600;text-align:right}
+.enrichment-item .enrich-value.muted{color:var(--text-muted);font-weight:400;font-style:italic}
+.noticia-link{display:block;margin-top:6px;padding:8px 12px;background:#f8fafc;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:.8rem;color:var(--blue);text-decoration:none;transition:var(--transition);line-height:1.4}
+.noticia-link:hover{background:var(--blue-light);border-color:var(--blue)}
+.noticia-link .noticia-label{font-size:.68rem;text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted);font-weight:600;display:block;margin-bottom:2px}
+
+/* Equipamentos grid */
+.equip-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding:12px 28px}
+.equip-card{background:#f8fafc;border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px;text-align:center}
+.equip-card .equip-val{font-size:1.1rem;font-weight:700;color:var(--text-primary)}
+.equip-card .equip-lbl{font-size:.65rem;color:var(--text-muted);margin-top:2px;text-transform:uppercase;font-weight:600}
+.equip-card.has-equip{border-color:var(--accent);background:var(--violet-light)}
+
+/* Info grid */
+.info-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px 16px;padding:12px 28px}
+.info-item{display:flex;justify-content:space-between;font-size:.82rem;padding:4px 0;border-bottom:1px solid var(--border)}
+.info-item .info-label{color:var(--text-muted);font-weight:500}
+.info-item .info-value{color:var(--text-primary);font-weight:600;text-align:right}
+
+/* Operadoras section */
+.operadoras-section{padding:0 28px 12px}
+.operadoras-section h3{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:8px;font-weight:600}
+.operadoras-box{background:#f8fafc;border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;font-size:.78rem;line-height:1.6;color:var(--text-secondary);max-height:80px;overflow:hidden;position:relative;transition:max-height .3s ease;cursor:pointer}
+.operadoras-box.expanded{max-height:2000px}
+.operadoras-box::after{content:'Clique para expandir';position:absolute;bottom:0;left:0;right:0;height:40px;background:linear-gradient(transparent,#f8fafc);display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px;font-size:.7rem;color:var(--blue);font-weight:600;pointer-events:none}
+.operadoras-box.expanded::after{display:none}
+
+/* PEP dropdown */
+.pep-dropdown{background:#f8fafc;border:1px solid var(--border);border-radius:10px;margin:8px 0;overflow:hidden;cursor:pointer}
+.pep-dropdown-header{display:flex;align-items:center;gap:8px;padding:10px 14px}
+.pep-dropdown-arrow{transition:transform .2s;font-size:.7rem;color:var(--text-muted)}
+.pep-dropdown.open .pep-dropdown-arrow{transform:rotate(90deg)}
+.pep-dropdown-body{display:none;padding:0 14px 12px;font-size:.78rem;color:var(--text-secondary);border-top:1px solid var(--border)}
+.pep-dropdown.open .pep-dropdown-body{display:block}
+.pep-detail-row{display:flex;gap:8px;margin-top:6px}
+.pep-detail-label{font-weight:600;min-width:60px;color:var(--text-muted);font-size:.72rem}
+.pep-detail-value{flex:1}
+.pep-evidence-link{color:var(--blue);text-decoration:none;font-size:.72rem}
+.pep-evidence-link:hover{text-decoration:underline}
+.pep-notes-text{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.4}
+.pep-notes-text.expanded{-webkit-line-clamp:unset;overflow:visible}
+
+/* PEP vendor badge (kept for inline use in dropdown header) */
+.pep-badge{padding:5px 14px;border-radius:20px;font-size:.75rem;font-weight:700;display:inline-flex;align-items:center;gap:6px}
+.pep-badge-tasy{background:var(--blue-light);color:#0369a1}
+.pep-badge-mv{background:var(--green-light);color:#065f46}
+.pep-badge-proprio{background:var(--purple-light);color:#7e22ce}
+.pep-badge-nao{background:#f1f5f9;color:var(--text-muted)}
+.pep-badge-inconclusivo{background:var(--amber-light);color:#92400e}
+
+/* Leads section inside hospital card */
+.leads-section{margin:16px 28px;border-radius:var(--radius-sm);background:#f8fafc;border:1px solid var(--border);overflow:hidden}
+.leads-section-header{display:flex;align-items:center;gap:8px;padding:14px 16px;background:#f1f5f9;border-bottom:1px solid var(--border);cursor:pointer;user-select:none}
+.leads-section-header h3{font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--text-secondary);font-weight:700;flex:1}
+.leads-section-header .leads-count{font-size:.72rem;background:var(--accent);color:#fff;padding:2px 10px;border-radius:10px;font-weight:700}
+.leads-section-header .leads-toggle{font-size:.7rem;transition:transform .2s ease;display:inline-block;color:var(--text-muted)}
+.leads-section-header .leads-toggle.open{transform:rotate(90deg)}
+.leads-section-body{max-height:0;overflow:hidden;transition:max-height .4s ease}
+.leads-section-body.expanded{max-height:5000px}
+.lead-row{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);transition:background .15s}
+.lead-pvp{width:100%;margin-top:6px;padding:10px 14px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;font-size:.78rem;color:var(--text-secondary);cursor:pointer;max-height:60px;overflow:hidden;transition:max-height .3s ease}
+.lead-pvp.expanded{max-height:600px;overflow:auto}
+.lead-pvp-subject{font-size:.72rem;color:var(--green);margin-bottom:4px}
+.lead-pvp-body{white-space:pre-wrap;line-height:1.5}
+.lead-row:last-child{border-bottom:none}
+.lead-row:hover{background:#eef2ff}
+.lead-avatar{width:36px;height:36px;border-radius:50%;background:var(--blue-light);color:var(--blue);display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:700;flex-shrink:0}
+.lead-info{flex:1;min-width:0}
+.lead-name{font-size:.85rem;font-weight:700;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lead-cargo{font-size:.72rem;color:var(--text-muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lead-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.leads-empty{padding:16px;text-align:center;font-size:.82rem;color:var(--text-muted);font-style:italic}
+.lead-linkedin-chip{display:inline-block;padding:3px 10px;background:#e0f2fe;color:#0369a1;border-radius:20px;font-size:.72rem;font-weight:600;text-decoration:none;transition:background .15s}
+.lead-linkedin-chip:hover{background:#bae6fd}
+.lead-email-chip{display:inline-block;padding:3px 10px;background:#d1fae5;color:#065f46;border-radius:20px;font-size:.72rem;font-weight:600;text-decoration:none;transition:background .15s}
+.lead-email-chip:hover{background:#a7f3d0}
+
+/* Description / Mensagem section */
+.description-section{padding:0 28px 16px}
+.description-section h3{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:8px;font-weight:600}
+.description-box{background:#f8fafc;border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;font-size:.84rem;line-height:1.6;color:var(--text-secondary);max-height:120px;overflow:hidden;position:relative;transition:max-height .3s ease;cursor:pointer;white-space:pre-wrap}
+.description-box.expanded{max-height:2000px}
+.description-box::after{content:'Clique para expandir';position:absolute;bottom:0;left:0;right:0;height:50px;background:linear-gradient(transparent,#f8fafc);display:flex;align-items:flex-end;justify-content:center;padding-bottom:8px;font-size:.7rem;color:var(--blue);font-weight:600;pointer-events:none}
+.description-box.expanded::after{display:none}
+
+/* Star rating */
+.star-rating-section{padding:0 28px 16px}
+.star-rating-section h3{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:8px;font-weight:600}
+.star-rating{display:flex;gap:4px}
+.star-btn{background:none;border:none;font-size:1.6rem;cursor:pointer;color:#d1d5db;transition:color .15s,transform .15s;padding:2px}
+.star-btn:hover{transform:scale(1.2)}
+.star-btn.active{color:#f59e0b}
+.star-btn.hover-preview{color:#fbbf24}
+
+/* Notes */
+.notes-section{padding:0 28px 16px}
+.notes-section h3{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:8px;font-weight:600}
+.notes-textarea{width:100%;min-height:80px;padding:12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:inherit;font-size:.84rem;resize:vertical;transition:border-color .2s;color:var(--text-primary);background:#fff}
+.notes-textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(16,185,129,.15)}
+.notes-textarea::placeholder{color:var(--text-muted)}
+
+/* Action buttons */
+.action-buttons{display:flex;gap:10px;padding:16px 28px 24px}
+.action-btn{flex:1;padding:14px;border:none;border-radius:var(--radius-sm);font-size:.9rem;font-weight:700;cursor:pointer;transition:var(--transition);display:flex;align-items:center;justify-content:center;gap:8px}
+.action-btn:active{transform:scale(.97)}
+.btn-approve{background:var(--green);color:#fff}
+.btn-approve:hover{background:#059669;box-shadow:0 4px 12px rgba(16,185,129,.3)}
+.btn-reject{background:var(--red);color:#fff}
+.btn-reject:hover{background:#dc2626;box-shadow:0 4px 12px rgba(239,68,68,.3)}
+.btn-maybe{background:var(--amber);color:#fff}
+.btn-maybe:hover{background:#d97706;box-shadow:0 4px 12px rgba(245,158,11,.3)}
+
+/* Empty state */
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 40px;text-align:center}
+.empty-state-icon{font-size:3rem;margin-bottom:16px;opacity:.3}
+.empty-state h2{font-size:1.2rem;color:var(--text-secondary);font-weight:600;margin-bottom:8px}
+.empty-state p{font-size:.88rem;color:var(--text-muted)}
+
+/* Loading state */
+.loading-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 40px;text-align:center}
+.loading-spinner{width:40px;height:40px;border:4px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite;margin-bottom:16px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Toast */
+.toast{position:fixed;bottom:24px;right:24px;padding:14px 24px;border-radius:var(--radius-sm);color:#fff;font-size:.85rem;font-weight:600;transform:translateY(100px);opacity:0;transition:all .3s ease;z-index:100;box-shadow:var(--shadow-lg)}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.green{background:var(--green)}
+.toast.red{background:var(--red)}
+.toast.amber{background:var(--amber)}
+.toast.blue{background:var(--blue)}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .sidebar{width:240px;min-width:240px}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .equip-grid{grid-template-columns:repeat(3,1fr)}
+  .card-area{padding:16px}
+  .topbar{padding:12px 16px}
+}
+@media(max-width:700px){
+  body{flex-direction:column}
+  .sidebar{width:100%;min-width:100%;height:auto;max-height:50vh;order:2}
+  .main{order:1;height:auto;min-height:60vh}
+  .progress-section{flex-direction:row;gap:16px;padding:12px 20px}
+  .progress-ring-container{width:60px;height:60px}
+  .action-buttons{flex-direction:column}
+  .equip-grid{grid-template-columns:repeat(3,1fr)}
+}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(0,0,0,.15);border-radius:3px}
+.sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15)}
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <h1>Mevo &#8212; Hospitais PQS2</h1>
+    <p>Filantropica sob pressao (V2)</p>
+  </div>
+
+  <div class="filter-section">
+    <h3>Status</h3>
+    <button class="filter-btn active" data-filter="all" onclick="setFilter('all')">
+      <span class="filter-dot" style="background:#fff"></span>
+      Todos
+      <span class="filter-count" id="filterCountAll">0</span>
+    </button>
+    <button class="filter-btn" data-filter="new" onclick="setFilter('new')">
+      <span class="filter-dot new"></span>
+      Novo
+      <span class="filter-count" id="filterCountNew">0</span>
+    </button>
+    <button class="filter-btn" data-filter="approved" onclick="setFilter('approved')">
+      <span class="filter-dot approved"></span>
+      Aprovado
+      <span class="filter-count" id="filterCountApproved">0</span>
+    </button>
+    <button class="filter-btn" data-filter="rejected" onclick="setFilter('rejected')">
+      <span class="filter-dot rejected"></span>
+      Rejeitado
+      <span class="filter-count" id="filterCountRejected">0</span>
+    </button>
+    <button class="filter-btn" data-filter="maybe" onclick="setFilter('maybe')">
+      <span class="filter-dot maybe"></span>
+      Talvez
+      <span class="filter-count" id="filterCountMaybe">0</span>
+    </button>
+  </div>
+
+  <div class="progress-section">
+    <div class="progress-ring-container">
+      <svg class="progress-ring" width="100" height="100" viewBox="0 0 100 100">
+        <circle class="progress-ring-bg" cx="50" cy="50" r="42"/>
+        <circle class="progress-ring-fill" id="progressRing" cx="50" cy="50" r="42"
+          stroke-dasharray="263.89" stroke-dashoffset="263.89"/>
+      </svg>
+      <div class="progress-text" id="progressText">0%</div>
+    </div>
+    <div class="progress-label">Revisados</div>
+  </div>
+
+  <div class="stats-section">
+    <div class="stat-row"><span class="dot" style="background:var(--green)"></span> Aprovados <span class="val" id="statApproved">0</span></div>
+    <div class="stat-row"><span class="dot" style="background:var(--red)"></span> Rejeitados <span class="val" id="statRejected">0</span></div>
+    <div class="stat-row"><span class="dot" style="background:var(--amber)"></span> Talvez <span class="val" id="statMaybe">0</span></div>
+  </div>
+
+  <div class="shortcuts-section">
+    <h3>Atalhos</h3>
+    <div class="shortcut-row"><kbd class="kbd">A</kbd> ou <kbd class="kbd">&uarr;</kbd> Aprovar</div>
+    <div class="shortcut-row"><kbd class="kbd">R</kbd> ou <kbd class="kbd">&darr;</kbd> Rejeitar</div>
+    <div class="shortcut-row"><kbd class="kbd">M</kbd> Talvez</div>
+    <div class="shortcut-row"><kbd class="kbd">&larr;</kbd> Anterior &nbsp; <kbd class="kbd">&rarr;</kbd> Proximo</div>
+    <div class="shortcut-row"><kbd class="kbd">1</kbd>-<kbd class="kbd">5</kbd> Rating</div>
+    <div class="shortcut-row"><kbd class="kbd">Ctrl+Z</kbd> Desfazer</div>
+  </div>
+
+  <div class="export-section">
+    <button class="export-btn primary" onclick="exportCSV()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Exportar CSV
+    </button>
+    <button class="export-btn secondary" onclick="resetAllReviews()">Limpar Revisoes</button>
+  </div>
+</aside>
+
+<!-- Main -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-nav">
+      <button class="nav-btn" id="btnPrev" onclick="navigate(-1)" title="Anterior">&larr;</button>
+      <button class="nav-btn" id="btnNext" onclick="navigate(1)" title="Proximo">&rarr;</button>
+    </div>
+    <span class="topbar-counter" id="topbarCounter">0 / 0</span>
+    <div class="topbar-right">
+      <button class="undo-btn" id="undoBtn" onclick="undo()" disabled title="Ctrl+Z">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 105.64-11.36L1 10"/></svg>
+        Desfazer
+      </button>
+    </div>
+  </div>
+
+  <div class="card-area" id="cardArea">
+    <div class="card-wrapper"><div class="card"><div class="loading-state">
+      <div class="loading-spinner"></div>
+      <h2 style="font-size:1.1rem;color:var(--text-secondary);font-weight:600">Carregando hospitais do Supabase...</h2>
+    </div></div></div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// =================================================================
+// SUPABASE CONFIG
+// =================================================================
+const SUPABASE_URL = 'https://dzsvbklojjvmjwcizkxi.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR6c3Zia2xvamp2bWp3Y2l6a3hpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4MzY2OTMsImV4cCI6MjA5MDQxMjY5M30.jzE0RhN4UWEH13dUNqFY2XtPbnyXwuE_d_FvDVFjg88';
+
+async function supaFetch(path, options = {}) {
+  const url = `${SUPABASE_URL}/rest/v1/${path}`;
+  const prefer = options.method === 'POST' ? 'resolution=merge-duplicates,return=minimal'
+    : options.method === 'DELETE' ? 'return=minimal'
+    : 'return=representation';
+  const headers = {
+    'apikey': SUPABASE_KEY,
+    'Authorization': `Bearer ${SUPABASE_KEY}`,
+    'Content-Type': 'application/json',
+    'Prefer': prefer
+  };
+  const res = await fetch(url, { method: options.method || 'GET', headers, body: options.body });
+  if (!res.ok) {
+    const txt = await res.text();
+    console.error('Supabase error:', res.status, txt);
+    throw new Error(`Supabase ${res.status}: ${txt}`);
+  }
+  if (res.status === 204) return null;
+  return res.json();
+}
+
+// =================================================================
+// STATE
+// =================================================================
+let HOSPITAIS_RAW = [];
+let LEADS_RAW = [];
+let hospitaisReviews = {};
+let leadsByEmpresa = {};
+
+let currentFilter = 'all';
+let currentIndex = 0;
+let filteredIndices = [];
+let undoStack = [];
+let navDirection = 1;
+let notesSaveTimer = null;
+let dataLoaded = false;
+
+function getItemKey(item) {
+  return item.cnes || item.nome || '';
+}
+
+function getReview(idx) {
+  const key = getItemKey(HOSPITAIS_RAW[idx]);
+  return hospitaisReviews[key] || { status: 'new', notes: '', rating: 0, reviewed_at: '' };
+}
+
+// =================================================================
+// SUPABASE PERSISTENCE
+// =================================================================
+async function loadReviewsFromSupabase() {
+  try {
+    const hospRevs = await supaFetch('mevo_hospitais_pqs4_reviews?select=*');
+    hospitaisReviews = {};
+    (hospRevs || []).forEach(r => {
+      hospitaisReviews[r.cnes] = {
+        status: r.status || 'new',
+        notes: r.notes || '',
+        rating: r.rating || 0,
+        reviewed_at: r.reviewed_at || ''
+      };
+    });
+  } catch(e) {
+    console.warn('Failed to load reviews from Supabase, using empty state', e);
+  }
+}
+
+async function saveReviewToSupabase(key, review) {
+  try {
+    await supaFetch('mevo_hospitais_pqs4_reviews', {
+      method: 'POST',
+      body: JSON.stringify({
+        cnes: key,
+        status: review.status,
+        notes: review.notes || '',
+        rating: review.rating || 0,
+        reviewed_at: review.reviewed_at,
+        updated_at: new Date().toISOString()
+      })
+    });
+  } catch(e) {
+    console.warn('Failed to save review to Supabase', e);
+  }
+}
+
+function setReview(idx, status, notes, rating) {
+  const key = getItemKey(HOSPITAIS_RAW[idx]);
+  const prev = hospitaisReviews[key] ? {...hospitaisReviews[key]} : { status: 'new', notes: '', rating: 0, reviewed_at: '' };
+  undoStack.push({ key, prev: {...prev} });
+  if (undoStack.length > 50) undoStack.shift();
+  hospitaisReviews[key] = {
+    status,
+    notes: notes !== undefined ? notes : prev.notes,
+    rating: rating !== undefined ? rating : prev.rating,
+    reviewed_at: new Date().toISOString()
+  };
+  document.getElementById('undoBtn').disabled = false;
+  saveReviewToSupabase(key, hospitaisReviews[key]);
+}
+
+// =================================================================
+// FILTERING
+// =================================================================
+function buildFilteredIndices() {
+  filteredIndices = [];
+  for (let i = 0; i < HOSPITAIS_RAW.length; i++) {
+    const key = getItemKey(HOSPITAIS_RAW[i]);
+    const s = (hospitaisReviews[key] || { status: 'new' }).status;
+    if (currentFilter !== 'all' && currentFilter !== s) continue;
+    filteredIndices.push(i);
+  }
+}
+
+function setFilter(f) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.toggle('active', b.dataset.filter === f));
+  buildFilteredIndices();
+  currentIndex = 0;
+  renderCard();
+  updateSidebar();
+}
+
+// =================================================================
+// NAVIGATION
+// =================================================================
+function navigate(dir) {
+  if (filteredIndices.length === 0) return;
+  navDirection = dir;
+  currentIndex = Math.max(0, Math.min(filteredIndices.length - 1, currentIndex + dir));
+  renderCard();
+  updateNav();
+}
+
+function updateNav() {
+  document.getElementById('btnPrev').disabled = currentIndex <= 0;
+  document.getElementById('btnNext').disabled = currentIndex >= filteredIndices.length - 1;
+  document.getElementById('topbarCounter').textContent = filteredIndices.length > 0
+    ? `${currentIndex + 1} / ${filteredIndices.length}`
+    : '0 / 0';
+}
+
+// =================================================================
+// UNDO
+// =================================================================
+function undo() {
+  if (undoStack.length === 0) return;
+  const action = undoStack.pop();
+  if (action.prev.status === 'new' && !action.prev.notes && !action.prev.rating) {
+    delete hospitaisReviews[action.key];
+  } else {
+    hospitaisReviews[action.key] = action.prev;
+  }
+  saveReviewToSupabase(action.key, action.prev.status === 'new' && !action.prev.notes && !action.prev.rating
+    ? { status: 'new', notes: '', rating: 0, reviewed_at: '' }
+    : action.prev
+  );
+
+  document.getElementById('undoBtn').disabled = undoStack.length === 0;
+  buildFilteredIndices();
+  if (currentIndex >= filteredIndices.length) currentIndex = Math.max(0, filteredIndices.length - 1);
+  renderCard();
+  updateSidebar();
+  showToast('Acao desfeita', 'blue');
+}
+
+// =================================================================
+// FORMATTING HELPERS
+// =================================================================
+function fmt(n) {
+  if (n == null || n === '') return '--';
+  const num = Number(n);
+  if (isNaN(num)) return String(n);
+  return num.toLocaleString('pt-BR');
+}
+
+function pct(n) {
+  if (n == null || n === '') return '--';
+  const s = String(n);
+  if (s.includes('%')) return s;
+  const num = Number(n);
+  if (isNaN(num)) return s;
+  if (Math.abs(num) > 1) return num.toFixed(1) + '%';
+  return (num * 100).toFixed(1) + '%';
+}
+
+function fmtBRL(n) {
+  if (n == null || n === '') return '--';
+  const num = Number(n);
+  if (isNaN(num)) return String(n);
+  return 'R$ ' + num.toLocaleString('pt-BR', {minimumFractionDigits: 0, maximumFractionDigits: 0});
+}
+
+function statusBadge(status) {
+  const map = {
+    new: ['Novo', 'badge-new'],
+    approved: ['Aprovado', 'badge-approved'],
+    rejected: ['Rejeitado', 'badge-rejected'],
+    maybe: ['Talvez', 'badge-maybe']
+  };
+  const [label, cls] = map[status] || map.new;
+  return `<span class="badge badge-status ${cls}">${label}</span>`;
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function starRatingHtml(rating, realIdx) {
+  let html = '<div class="star-rating" onmouseleave="clearStarHover()">';
+  for (let i = 1; i <= 5; i++) {
+    const active = i <= rating ? ' active' : '';
+    html += `<button class="star-btn${active}" data-star="${i}" data-idx="${realIdx}" onclick="setStarRating(${realIdx}, ${i})" onmouseenter="previewStar(${i})">&#9733;</button>`;
+  }
+  html += '</div>';
+  return html;
+}
+
+function previewStar(n) {
+  document.querySelectorAll('.star-btn').forEach(btn => {
+    const s = parseInt(btn.dataset.star);
+    btn.classList.toggle('hover-preview', s <= n && !btn.classList.contains('active'));
+  });
+}
+
+function clearStarHover() {
+  document.querySelectorAll('.star-btn').forEach(btn => btn.classList.remove('hover-preview'));
+}
+
+function setStarRating(realIdx, rating) {
+  const key = getItemKey(HOSPITAIS_RAW[realIdx]);
+  const current = hospitaisReviews[key] || { status: 'new', notes: '', rating: 0, reviewed_at: '' };
+  const newRating = current.rating === rating ? 0 : rating;
+  hospitaisReviews[key] = { ...current, rating: newRating, reviewed_at: new Date().toISOString() };
+  saveReviewToSupabase(key, hospitaisReviews[key]);
+  document.querySelectorAll('.star-btn').forEach(btn => {
+    const s = parseInt(btn.dataset.star);
+    btn.classList.toggle('active', s <= newRating);
+  });
+}
+
+// =================================================================
+// RENDER ENRICHMENT SECTION
+// =================================================================
+function renderEnrichmentSection(d) {
+  let badgesHtml = '';
+  let gridHtml = '';
+  let noticiaHtml = '';
+
+  // perfil_atendimento badge
+  if (d.perfil_atendimento) {
+    let bgColor = '#f1f5f9', txtColor = 'var(--text-muted)';
+    if (d.perfil_atendimento === 'SUS predominante') {
+      bgColor = '#fee2e2'; txtColor = '#991b1b';
+    } else if (d.perfil_atendimento === 'Misto com privado') {
+      bgColor = '#d1fae5'; txtColor = '#065f46';
+    }
+    badgesHtml += `<span class="enrichment-badge" style="background:${bgColor};color:${txtColor}">${escapeHtml(d.perfil_atendimento)}</span>`;
+  }
+
+  // eh_hospital_escola badge
+  if (d.eh_hospital_escola) {
+    badgesHtml += `<span class="enrichment-badge" style="background:var(--blue-light);color:#0369a1">Hospital de Ensino</span>`;
+  }
+
+  // corpo_clinico_tipo badge
+  if (d.corpo_clinico_tipo) {
+    let bgColor = '#f1f5f9', txtColor = 'var(--text-muted)';
+    if (d.corpo_clinico_tipo === 'Aberto') {
+      bgColor = 'var(--orange-light)'; txtColor = '#c2410c';
+    } else if (d.corpo_clinico_tipo === 'Fechado') {
+      bgColor = 'var(--blue-light)'; txtColor = '#0369a1';
+    } else if (d.corpo_clinico_tipo === 'Misto') {
+      bgColor = 'var(--purple-light)'; txtColor = '#7e22ce';
+    }
+    badgesHtml += `<span class="enrichment-badge" style="background:${bgColor};color:${txtColor}">Corpo Clinico: ${escapeHtml(d.corpo_clinico_tipo)}</span>`;
+  }
+
+  // maturidade_digital badge
+  if (d.maturidade_digital) {
+    let bgColor = '#f1f5f9', txtColor = 'var(--text-muted)';
+    const md = d.maturidade_digital.toLowerCase();
+    if (md === 'alta') {
+      bgColor = 'var(--green-light)'; txtColor = '#065f46';
+    } else if (md === 'média' || md === 'media') {
+      bgColor = 'var(--amber-light)'; txtColor = '#92400e';
+    } else if (md === 'baixa') {
+      bgColor = 'var(--red-light)'; txtColor = '#991b1b';
+    }
+    badgesHtml += `<span class="enrichment-badge" style="background:${bgColor};color:${txtColor}">Digital: ${escapeHtml(d.maturidade_digital)}</span>`;
+  }
+
+  // associacoes in info grid
+  const assocValue = d.associacoes || '--';
+  const assocMuted = !d.associacoes || d.associacoes === 'Nenhuma encontrada';
+  gridHtml += `<div class="enrichment-item"><span class="enrich-label">Associacoes</span><span class="enrich-value${assocMuted ? ' muted' : ''}">${escapeHtml(assocValue)}</span></div>`;
+
+  // noticia_url + noticia_titulo
+  if (d.noticia_url) {
+    const titulo = d.noticia_titulo || d.noticia_url;
+    noticiaHtml = `<a class="noticia-link" href="${escapeHtml(d.noticia_url)}" target="_blank" rel="noopener">
+      <span class="noticia-label">Noticia Recente</span>
+      ${escapeHtml(titulo)}
+    </a>`;
+  }
+
+  // Only render section if there's any enrichment data
+  if (!badgesHtml && !gridHtml && !noticiaHtml) return '';
+
+  return `
+  <div class="enrichment-section">
+    <h3>Dados Enriquecidos</h3>
+    ${badgesHtml ? `<div class="enrichment-badges">${badgesHtml}</div>` : ''}
+    ${gridHtml ? `<div class="enrichment-grid">${gridHtml}</div>` : ''}
+    ${noticiaHtml}
+  </div>`;
+}
+
+// =================================================================
+// RENDER PEP DROPDOWN (expandable)
+// =================================================================
+function togglePep(el) {
+  el.closest('.pep-dropdown').classList.toggle('open');
+}
+
+function togglePepNotes(ev, el) {
+  ev.stopPropagation();
+  el.classList.toggle('expanded');
+}
+
+function renderPepDropdown(d) {
+  const vendor = (d.pep_vendor || '').trim();
+  if (!vendor || vendor === '--') return '';
+
+  // Determine badge class
+  let cls = 'pep-badge-nao';
+  if (/tasy/i.test(vendor)) cls = 'pep-badge-tasy';
+  else if (/^mv$/i.test(vendor) || /soul\s*mv/i.test(vendor)) cls = 'pep-badge-mv';
+  else if (/pr.prio/i.test(vendor) || /sistema pr.prio/i.test(vendor)) cls = 'pep-badge-proprio';
+  else if (/n.o detectado/i.test(vendor)) cls = 'pep-badge-nao';
+  else if (/inconclusivo/i.test(vendor)) cls = 'pep-badge-inconclusivo';
+
+  // Build detail rows
+  let detailRows = '';
+
+  detailRows += `<div class="pep-detail-row"><span class="pep-detail-label">Vendor</span><span class="pep-detail-value" style="font-weight:700">${escapeHtml(vendor)}</span></div>`;
+
+  if (d.pep_produto) {
+    detailRows += `<div class="pep-detail-row"><span class="pep-detail-label">Produto</span><span class="pep-detail-value">${escapeHtml(d.pep_produto)}</span></div>`;
+  }
+
+  if (d.pep_evidence_source) {
+    detailRows += `<div class="pep-detail-row"><span class="pep-detail-label">Fonte</span><span class="pep-detail-value">${escapeHtml(d.pep_evidence_source)}</span></div>`;
+  }
+
+  if (d.pep_evidence_url) {
+    detailRows += `<div class="pep-detail-row"><span class="pep-detail-label">Evidencia</span><span class="pep-detail-value"><a class="pep-evidence-link" href="${escapeHtml(d.pep_evidence_url)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${escapeHtml(d.pep_evidence_url)}</a></span></div>`;
+  }
+
+  if (d.pep_evidence_date) {
+    detailRows += `<div class="pep-detail-row"><span class="pep-detail-label">Data</span><span class="pep-detail-value">${escapeHtml(d.pep_evidence_date)}</span></div>`;
+  }
+
+  if (d.pep_search_notes) {
+    detailRows += `<div class="pep-detail-row"><span class="pep-detail-label">Notas</span><span class="pep-detail-value"><span class="pep-notes-text" onclick="togglePepNotes(event, this)">${escapeHtml(d.pep_search_notes)}</span></span></div>`;
+  }
+
+  return `
+  <div class="pep-dropdown" onclick="togglePep(this)" style="margin:8px 28px">
+    <div class="pep-dropdown-header">
+      <span class="pep-dropdown-arrow">&#9654;</span>
+      <span class="pep-badge ${cls}">&#128187; ${escapeHtml(vendor)}</span>
+    </div>
+    <div class="pep-dropdown-body">
+      ${detailRows}
+    </div>
+  </div>`;
+}
+
+// =================================================================
+// RENDER LEADS SECTION (inside hospital card)
+// =================================================================
+function renderLeadsSection(hospitalNome) {
+  const leads = leadsByEmpresa[hospitalNome] || [];
+
+  if (leads.length === 0) {
+    return `
+    <div class="leads-section">
+      <div class="leads-section-header" style="cursor:default">
+        <h3>&#128100; Leads desta conta</h3>
+        <span class="leads-count" style="background:var(--text-muted)">0</span>
+      </div>
+      <div class="leads-section-body expanded">
+        <div class="leads-empty">Nenhum lead encontrado</div>
+      </div>
+    </div>`;
+  }
+
+  let rowsHtml = '';
+  leads.forEach(lead => {
+    const initials = (lead.lead_nome || '??').split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
+
+    // PVP message section
+    let pvpHtml = '';
+    if (lead.pvp_mensagem) {
+      pvpHtml = `
+      <div class="lead-pvp" onclick="this.classList.toggle('expanded')">
+        ${lead.pvp_assunto ? `<div class="lead-pvp-subject"><strong>Assunto:</strong> ${escapeHtml(lead.pvp_assunto)}</div>` : ''}
+        <div class="lead-pvp-body">${escapeHtml(lead.pvp_mensagem)}</div>
+      </div>`;
+    }
+
+    // LinkedIn chip
+    const linkedinChip = lead.linkedin_lead
+      ? `<a class="lead-linkedin-chip" href="${escapeHtml(lead.linkedin_lead)}" target="_blank" rel="noopener">&#128279; LinkedIn</a>`
+      : '';
+
+    // Email chip
+    const emailChip = lead.work_email
+      ? `<a class="lead-email-chip" href="mailto:${escapeHtml(lead.work_email)}" title="${escapeHtml(lead.work_email)}">&#9993; ${escapeHtml(lead.work_email)}</a>`
+      : '';
+
+    rowsHtml += `
+    <div class="lead-row">
+      <div class="lead-avatar">${initials}</div>
+      <div class="lead-info">
+        <div class="lead-name">${escapeHtml(lead.lead_nome)}</div>
+        <div class="lead-cargo">${escapeHtml(lead.cargo || '')}</div>
+        <div class="lead-chips">
+          ${linkedinChip}
+          ${emailChip}
+        </div>
+      </div>
+      ${pvpHtml}
+    </div>`;
+  });
+
+  return `
+  <div class="leads-section">
+    <div class="leads-section-header" onclick="toggleLeads(this)">
+      <h3>&#128100; Leads desta conta</h3>
+      <span class="leads-count">${leads.length}</span>
+      <span class="leads-toggle open">&#9654;</span>
+    </div>
+    <div class="leads-section-body expanded">
+      ${rowsHtml}
+    </div>
+  </div>`;
+}
+
+function toggleLeads(el) {
+  const body = el.nextElementSibling;
+  const arrow = el.querySelector('.leads-toggle');
+  body.classList.toggle('expanded');
+  arrow.classList.toggle('open');
+}
+
+// =================================================================
+// RENDER HOSPITAL CARD (with equipment, enrichment, PT labels)
+// =================================================================
+function renderHospitalCard(d, review, realIdx) {
+  const anim = navDirection >= 0 ? '' : ' reverse';
+  const operadoras = d.ans_operadoras || '';
+  const opList = operadoras ? operadoras.split(';').map(s => s.trim()).filter(Boolean).join(', ') : '';
+
+  // Equipment items
+  const equipItems = [
+    { val: d.qtd_raio_x, label: 'Raio-X' },
+    { val: d.qtd_ultrassom, label: 'Ultrassom' },
+    { val: d.qtd_tomografo, label: 'Tomografo' },
+    { val: d.qtd_ressonancia, label: 'Ressonancia' },
+    { val: d.qtd_pet_ct, label: 'PET-CT' },
+  ];
+
+  // Rede label
+  const redeLabel = d.eh_rede
+    ? `Rede (${fmt(d.rede_unidades)} un.)`
+    : '';
+
+  return `
+  <div class="card${anim}" id="currentCard">
+    <div class="card-header">
+      <div class="card-header-top">
+        <h2 class="card-title">${escapeHtml(d.nome)}</h2>
+        <span class="badge badge-pqs">${escapeHtml(d.pqs || 'H-PQS2')}</span>
+        ${statusBadge(review.status)}
+      </div>
+      <div class="card-subtitle">${escapeHtml(d.municipio || '')}${d.uf ? ' / ' + escapeHtml(d.uf) : ''} &mdash; ${escapeHtml(d.tipo_unidade_desc || '')} &mdash; ${escapeHtml(d.tipo_natureza || '')}</div>
+    </div>
+
+    <div class="chips-row">
+      ${d.site ? `<a class="chip" href="${escapeHtml(d.site.startsWith('http') ? d.site : 'https://' + d.site)}" target="_blank" rel="noopener"><span class="chip-icon">&#127760;</span>Website</a>` : ''}
+      ${d.linkedin_empresa ? `<a class="chip" href="${escapeHtml(d.linkedin_empresa.startsWith('http') ? d.linkedin_empresa : 'https://' + d.linkedin_empresa)}" target="_blank" rel="noopener" style="background:var(--blue-light);color:#0369a1"><span class="chip-icon">&#128279;</span>LinkedIn Empresa</a>` : ''}
+      ${d.cnpj ? `<span class="chip"><span class="chip-icon">&#128196;</span>${escapeHtml(d.cnpj)}</span>` : ''}
+      <span class="chip"><span class="chip-icon">&#127963;</span>${escapeHtml(d.porte || '--')} / ${escapeHtml(d.segmento_tam || '--')}</span>
+      ${d.eh_rede ? `<span class="chip" style="background:var(--violet-light);color:#6d28d9"><span class="chip-icon">&#128279;</span>${escapeHtml(redeLabel)}</span>` : ''}
+      ${d.farmacia_propria ? `<span class="chip" style="background:var(--green-light);color:#065f46"><span class="chip-icon">&#128138;</span>Farmacia Propria</span>` : `<span class="chip" style="background:var(--red-light);color:#991b1b"><span class="chip-icon">&#128138;</span>Sem Farmacia Propria</span>`}
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-val">${fmt(d.pred_volume)}</div><div class="stat-lbl">Vol. Estimado (presc./mes)</div></div>
+      <div class="stat-card"><div class="stat-val">${fmt(d.lead_score)}</div><div class="stat-lbl">Score de Prioridade (0-100)</div></div>
+      <div class="stat-card"><div class="stat-val">${fmt(d.total_medicos)}</div><div class="stat-lbl">Medicos</div></div>
+      <div class="stat-card"><div class="stat-val">${fmt(d.n_high_prescribers)}</div><div class="stat-lbl">Medicos Alto Volume</div></div>
+      <div class="stat-card"><div class="stat-val">${fmt(d.vol_exames)}</div><div class="stat-lbl">Vol. Exames</div></div>
+      <div class="stat-card"><div class="stat-val">${fmt(d.vol_cirurgias)}</div><div class="stat-lbl">Vol. Cirurgias</div></div>
+      <div class="stat-card"><div class="stat-val">${fmt(d.ans_qnt_operadoras)}</div><div class="stat-lbl">Operadoras ANS</div></div>
+      <div class="stat-card"><div class="stat-val">${fmt(d.pqs4_ranking_score ? Number(d.pqs4_ranking_score).toFixed(1) : null)}</div><div class="stat-lbl">Pontuacao de Ranking</div></div>
+      <div class="stat-card${d.job_openings ? ' highlight' : ''}"><div class="stat-val">${fmt(d.job_openings)}</div><div class="stat-lbl">Vagas Abertas</div></div>
+      <div class="stat-card"><div class="stat-val">${fmt(d.employee_count)}</div><div class="stat-lbl">Funcionarios</div></div>
+    </div>
+
+    ${renderEnrichmentSection(d)}
+
+    ${renderPepDropdown(d)}
+
+    <div class="equip-grid">
+      ${equipItems.map(eq => {
+        const v = (eq.val != null && eq.val !== '') ? Number(eq.val) : null;
+        const display = v !== null && !isNaN(v) ? v : 'N/D';
+        const hasIt = v !== null && !isNaN(v) && v > 0;
+        return `<div class="equip-card${hasIt ? ' has-equip' : ''}"><div class="equip-val">${display}</div><div class="equip-lbl">${eq.label}</div></div>`;
+      }).join('')}
+    </div>
+
+    <div class="info-grid">
+      <div class="info-item"><span class="info-label">Faturamento SUS (R$)</span><span class="info-value">${fmtBRL(d.faturamento_sus)}</span></div>
+      <div class="info-item"><span class="info-label">Total Procedimentos</span><span class="info-value">${fmt(d.total_procedimentos)}</span></div>
+      <div class="info-item"><span class="info-label">Variedade de Procedimentos</span><span class="info-value">${fmt(d.variedade_procedimentos)}</span></div>
+      <div class="info-item"><span class="info-label">Especialidades</span><span class="info-value">${fmt(d.n_specialties)}</span></div>
+      <div class="info-item"><span class="info-label">% Clinicos Gerais</span><span class="info-value">${pct(d.pct_clinicos)}</span></div>
+      <div class="info-item"><span class="info-label">Farmaceuticos</span><span class="info-value">${fmt(d.farmaceuticos)}</span></div>
+      <div class="info-item"><span class="info-label">Confianca do Modelo</span><span class="info-value">${escapeHtml(d.confidence || '--')}</span></div>
+      <div class="info-item"><span class="info-label">Tipo de Atendimento</span><span class="info-value">${escapeHtml(d.tipo_atendimento || '--')}</span></div>
+      <div class="info-item"><span class="info-label">Porta (Aberta/Fechada/Mista)</span><span class="info-value">${escapeHtml(d.porta || '--')}</span></div>
+      <div class="info-item"><span class="info-label">Foco do PQS</span><span class="info-value">${escapeHtml(d.pqs_focus || '--')}</span></div>
+      <div class="info-item"><span class="info-label">Faixa de Volume (min-max)</span><span class="info-value">${fmt(d.range_lo)} - ${fmt(d.range_hi)}</span></div>
+      <div class="info-item"><span class="info-label">Capacidade Diagnostica</span><span class="info-value">${escapeHtml(d.diag_signal || '--')}</span></div>
+      <div class="info-item"><span class="info-label">Diagnostico Privado</span><span class="info-value">${escapeHtml(d.sadt_priv || '--')}</span></div>
+      <div class="info-item"><span class="info-label">Natureza Juridica</span><span class="info-value">${escapeHtml(d.tipo_natureza || '--')}</span></div>
+    </div>
+
+    ${d.insight_vendas ? `
+    <div class="description-section" style="padding-top:12px">
+      <h3>Insight pra Vendas</h3>
+      <div class="description-box" onclick="this.classList.toggle('expanded')">${escapeHtml(d.insight_vendas)}</div>
+    </div>` : ''}
+
+    ${opList ? `
+    <div class="operadoras-section" style="padding-top:12px">
+      <h3>Operadoras ANS (${fmt(d.ans_qnt_operadoras)})</h3>
+      <div class="operadoras-box" onclick="this.classList.toggle('expanded')">${escapeHtml(opList)}</div>
+    </div>` : ''}
+
+    ${renderLeadsSection(d.nome)}
+
+    <div class="star-rating-section" style="padding-top:16px">
+      <h3>Rating</h3>
+      ${starRatingHtml(review.rating, realIdx)}
+    </div>
+
+    <div class="notes-section">
+      <h3>Observacoes do Revisor</h3>
+      <textarea class="notes-textarea" placeholder="Adicione suas observacoes aqui..." data-idx="${realIdx}" oninput="debounceSaveNotes(this)">${escapeHtml(review.notes)}</textarea>
+    </div>
+
+    <div class="action-buttons">
+      <button class="action-btn btn-approve" onclick="doAction('approved')">&#10003; Aprovar</button>
+      <button class="action-btn btn-reject" onclick="doAction('rejected')">&#10007; Rejeitar</button>
+      <button class="action-btn btn-maybe" onclick="doAction('maybe')">&#8212; Talvez</button>
+    </div>
+  </div>`;
+}
+
+// =================================================================
+// RENDER CARD
+// =================================================================
+function renderCard() {
+  const area = document.getElementById('cardArea');
+  if (!dataLoaded) return;
+
+  if (filteredIndices.length === 0) {
+    area.innerHTML = `<div class="card-wrapper"><div class="card"><div class="empty-state">
+      <div class="empty-state-icon">&#128269;</div>
+      <h2>Nenhum hospital encontrado</h2>
+      <p>Nao ha itens com esse filtro.</p>
+    </div></div></div>`;
+    updateNav();
+    return;
+  }
+
+  const realIdx = filteredIndices[currentIndex];
+  const d = HOSPITAIS_RAW[realIdx];
+  const review = getReview(realIdx);
+  const html = renderHospitalCard(d, review, realIdx);
+
+  area.innerHTML = `<div class="card-wrapper">${html}</div>`;
+  updateNav();
+}
+
+// =================================================================
+// ACTIONS
+// =================================================================
+function doAction(status) {
+  if (filteredIndices.length === 0) return;
+  const realIdx = filteredIndices[currentIndex];
+  const ta = document.querySelector('.notes-textarea');
+  const notes = ta ? ta.value : getReview(realIdx).notes;
+  const rating = getReview(realIdx).rating;
+  setReview(realIdx, status, notes, rating);
+
+  const labels = { approved: 'Aprovado', rejected: 'Rejeitado', maybe: 'Talvez' };
+  const colors = { approved: 'green', rejected: 'red', maybe: 'amber' };
+  showToast(labels[status], colors[status]);
+
+  buildFilteredIndices();
+  if (currentFilter !== 'all' && currentFilter !== status) {
+    if (currentIndex >= filteredIndices.length) currentIndex = Math.max(0, filteredIndices.length - 1);
+  } else {
+    if (currentIndex < filteredIndices.length - 1) {
+      navDirection = 1;
+      currentIndex++;
+    }
+  }
+  renderCard();
+  updateSidebar();
+}
+
+// =================================================================
+// NOTES DEBOUNCE
+// =================================================================
+function debounceSaveNotes(el) {
+  clearTimeout(notesSaveTimer);
+  notesSaveTimer = setTimeout(() => {
+    const idx = parseInt(el.dataset.idx);
+    const key = getItemKey(HOSPITAIS_RAW[idx]);
+    if (!hospitaisReviews[key]) hospitaisReviews[key] = { status: 'new', notes: '', rating: 0, reviewed_at: '' };
+    hospitaisReviews[key].notes = el.value;
+    saveReviewToSupabase(key, hospitaisReviews[key]);
+  }, 400);
+}
+
+// =================================================================
+// SIDEBAR UPDATE
+// =================================================================
+function updateSidebar() {
+  let counts = { new: 0, approved: 0, rejected: 0, maybe: 0 };
+  for (let i = 0; i < HOSPITAIS_RAW.length; i++) {
+    const key = getItemKey(HOSPITAIS_RAW[i]);
+    const s = (hospitaisReviews[key] || { status: 'new' }).status;
+    counts[s] = (counts[s] || 0) + 1;
+  }
+  const total = HOSPITAIS_RAW.length;
+  const reviewed = total - counts.new;
+  const pctDone = total > 0 ? Math.round((reviewed / total) * 100) : 0;
+
+  document.getElementById('filterCountAll').textContent = total;
+  document.getElementById('filterCountNew').textContent = counts.new;
+  document.getElementById('filterCountApproved').textContent = counts.approved;
+  document.getElementById('filterCountRejected').textContent = counts.rejected;
+  document.getElementById('filterCountMaybe').textContent = counts.maybe;
+
+  document.getElementById('statApproved').textContent = counts.approved;
+  document.getElementById('statRejected').textContent = counts.rejected;
+  document.getElementById('statMaybe').textContent = counts.maybe;
+
+  const circumference = 2 * Math.PI * 42;
+  const offset = circumference - (pctDone / 100) * circumference;
+  document.getElementById('progressRing').style.strokeDashoffset = offset;
+  document.getElementById('progressText').textContent = pctDone + '%';
+}
+
+// =================================================================
+// TOAST
+// =================================================================
+function showToast(msg, color) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + color + ' show';
+  setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+// =================================================================
+// EXPORT CSV
+// =================================================================
+function exportCSV() {
+  if (HOSPITAIS_RAW.length === 0) return;
+
+  const rows = [['key', 'nome', 'status', 'rating', 'observacoes', 'revisado_em']];
+  for (let i = 0; i < HOSPITAIS_RAW.length; i++) {
+    const key = getItemKey(HOSPITAIS_RAW[i]);
+    const r = hospitaisReviews[key] || { status: 'new', notes: '', rating: 0, reviewed_at: '' };
+    rows.push([
+      `"${(key || '').replace(/"/g, '""')}"`,
+      `"${(HOSPITAIS_RAW[i].nome || '').replace(/"/g, '""')}"`,
+      r.status,
+      r.rating || 0,
+      `"${(r.notes || '').replace(/"/g, '""').replace(/\n/g, ' ')}"`,
+      r.reviewed_at || ''
+    ]);
+  }
+
+  const csv = '\ufeff' + rows.map(r => r.join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `mevo_hospitais_pqs4_qa_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('CSV exportado', 'blue');
+}
+
+// =================================================================
+// RESET
+// =================================================================
+function resetAllReviews() {
+  if (!confirm('Tem certeza? Isso vai apagar todas as revisoes de hospitais.')) return;
+
+  supaFetch('mevo_hospitais_pqs4_reviews?cnes=neq.IMPOSSIBLE_VALUE_NEVER_MATCH', { method: 'DELETE' }).catch(e => console.warn(e));
+  hospitaisReviews = {};
+  undoStack = [];
+  document.getElementById('undoBtn').disabled = true;
+  buildFilteredIndices();
+  currentIndex = 0;
+  renderCard();
+  updateSidebar();
+  showToast('Revisoes limpas', 'blue');
+}
+
+// =================================================================
+// KEYBOARD SHORTCUTS
+// =================================================================
+document.addEventListener('keydown', function(e) {
+  if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') {
+    if (e.key === 'Escape') e.target.blur();
+    return;
+  }
+  if (e.ctrlKey && e.key === 'z') { e.preventDefault(); undo(); return; }
+  if (['1','2','3','4','5'].includes(e.key) && !e.ctrlKey && !e.altKey && !e.metaKey) {
+    e.preventDefault();
+    if (filteredIndices.length === 0) return;
+    const realIdx = filteredIndices[currentIndex];
+    setStarRating(realIdx, parseInt(e.key));
+    return;
+  }
+  switch(e.key) {
+    case 'ArrowLeft':  e.preventDefault(); navigate(-1); break;
+    case 'ArrowRight': e.preventDefault(); navigate(1);  break;
+    case 'ArrowUp': case 'a': case 'A':
+      e.preventDefault(); doAction('approved'); break;
+    case 'ArrowDown': case 'r': case 'R':
+      e.preventDefault(); doAction('rejected'); break;
+    case 'm': case 'M':
+      e.preventDefault(); doAction('maybe'); break;
+  }
+});
+
+// =================================================================
+// INIT
+// =================================================================
+async function init() {
+  try {
+    // Fetch hospitals and leads in parallel
+    const [hospitais, leads] = await Promise.all([
+      supaFetch('mevo_hospitais_pqs4?select=*&order=pqs4_ranking_score.desc'),
+      supaFetch('mevo_leads_hospitais_pqs4?select=*&order=lead_nome.asc')
+    ]);
+    HOSPITAIS_RAW = hospitais || [];
+    LEADS_RAW = leads || [];
+
+    // Group leads by empresa name for matching to hospitals
+    leadsByEmpresa = {};
+    LEADS_RAW.forEach(lead => {
+      const empresa = (lead.empresa || '').trim();
+      if (!empresa) return;
+      if (!leadsByEmpresa[empresa]) leadsByEmpresa[empresa] = [];
+      leadsByEmpresa[empresa].push(lead);
+    });
+
+    await loadReviewsFromSupabase();
+
+    dataLoaded = true;
+    buildFilteredIndices();
+    renderCard();
+    updateSidebar();
+
+    const hospCount = HOSPITAIS_RAW.length;
+    const leadCount = LEADS_RAW.length;
+    showToast(`${hospCount} hospitais, ${leadCount} leads carregados`, 'blue');
+  } catch(e) {
+    console.error('Init error:', e);
+    document.getElementById('cardArea').innerHTML = `<div class="card-wrapper"><div class="card"><div class="empty-state">
+      <div class="empty-state-icon">&#9888;</div>
+      <h2>Erro ao carregar dados</h2>
+      <p>${escapeHtml(e.message)}</p>
+      <p style="margin-top:12px;font-size:.8rem;color:var(--text-muted)">Verifique a conexao com o Supabase e recarregue a pagina.</p>
+    </div></div></div>`;
+  }
+}
+
+init();
+</script>
+</body>
+</html>
