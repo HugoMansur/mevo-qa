@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>GTM Mevo — Direção do Projeto</title>
+<style>
+  @page { size: A4; margin: 14mm 16mm; }
+  @media print {
+    body { padding: 0; }
+    .noprint { display: none; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: #fff; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 10.5pt;
+    line-height: 1.45;
+    color: #111;
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 28px 24px 20px;
+  }
+  header {
+    border-bottom: 2px solid #0a0a0a;
+    padding-bottom: 10px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 17pt;
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    color: #0a0a0a;
+    line-height: 1.2;
+  }
+  .subtitle {
+    font-size: 10.5pt;
+    color: #404040;
+    margin-top: 5px;
+    font-weight: 500;
+  }
+  .meta {
+    font-size: 8.5pt;
+    color: #737373;
+    margin-top: 4px;
+  }
+  h2 {
+    font-size: 10.5pt;
+    font-weight: 700;
+    color: #0a0a0a;
+    margin-top: 14px;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  p { margin-bottom: 5px; }
+  ul { list-style: none; padding-left: 0; }
+  ul li {
+    padding-left: 14px;
+    position: relative;
+    margin-bottom: 4px;
+  }
+  ul li::before {
+    content: "–";
+    position: absolute;
+    left: 0;
+    color: #525252;
+    font-weight: 600;
+  }
+  .options {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin: 6px 0 4px;
+  }
+  .option {
+    padding: 9px 10px;
+    border: 1px solid #d4d4d4;
+    border-radius: 4px;
+    background: #fafafa;
+  }
+  .option.highlight {
+    border: 1.5px solid #0a0a0a;
+    background: #fff;
+  }
+  .option .label {
+    font-size: 7.5pt;
+    color: #737373;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+  }
+  .option.highlight .label {
+    color: #0a0a0a;
+  }
+  .option .name {
+    font-size: 10pt;
+    font-weight: 700;
+    margin: 2px 0 4px;
+    color: #0a0a0a;
+  }
+  .option .desc {
+    font-size: 9pt;
+    color: #262626;
+    line-height: 1.38;
+  }
+  .option .scale {
+    margin-top: 5px;
+    font-size: 8.5pt;
+    color: #525252;
+    font-style: italic;
+  }
+  .traction {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    padding: 10px 12px;
+    background: #f5f5f5;
+    border-left: 3px solid #0a0a0a;
+    margin: 6px 0;
+  }
+  .traction .number {
+    font-size: 16pt;
+    font-weight: 700;
+    color: #0a0a0a;
+    line-height: 1;
+  }
+  .traction .caption {
+    font-size: 8.5pt;
+    color: #404040;
+    margin-top: 3px;
+    line-height: 1.3;
+  }
+  strong { color: #0a0a0a; font-weight: 700; }
+  .pilar { margin-bottom: 5px; }
+  .pilar .pname { font-weight: 700; color: #0a0a0a; }
+  footer {
+    margin-top: 14px;
+    padding-top: 8px;
+    border-top: 1px solid #e5e5e5;
+    font-size: 8pt;
+    color: #737373;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>GTM Mevo — direção do projeto</h1>
+  <div class="subtitle">Escalar topo de funil com tecnologia — sem substituir o time comercial.</div>
+</header>
+
+<h2>O problema hoje</h2>
+<ul>
+  <li><strong>75% do tempo do SDR é operacional</strong> — research, enrichment, lista, limpeza de CRM. Só 25% vai pra conversa real com cliente.</li>
+  <li><strong>Ciclo de 6-7 meses</strong> pra fechar depende de jantar, evento, relacionamento. Não escala sem custo linear.</li>
+  <li>Hoje gastamos o mesmo esforço numa conta de 2 mil prescrições/mês e numa de 20 mil. A priorização é manual e enviesada por memória.</li>
+</ul>
+
+<h2>As três vias para escalar o topo de funil</h2>
+<div class="options">
+  <div class="option">
+    <div class="label">Opção 1</div>
+    <div class="name">Mais 1 SDR CLT</div>
+    <div class="desc">R$ 120-150k/ano fully-loaded. 75% ainda vai para operacional. Sujeira do CRM segue crescendo.</div>
+    <div class="scale">Escala custo.</div>
+  </div>
+  <div class="option">
+    <div class="label">Opção 2</div>
+    <div class="name">AI caixa-preta</div>
+    <div class="desc">AgentForce, 11x, Regie. Decide por você com modelo fechado. Não calibra com ICP da Mevo. Aprende só com reply rate — ignora feedback do time.</div>
+    <div class="scale">Escala volume.</div>
+  </div>
+  <div class="option highlight">
+    <div class="label">Opção 3 — em construção</div>
+    <div class="name">Self-improving system</div>
+    <div class="desc">Automatiza os 75% operacionais do SDR. Time comercial valida cada lead — modelo aprende com o julgamento humano a cada rodada.</div>
+    <div class="scale">Escala certeza.</div>
+  </div>
+</div>
+
+<h2>O que estamos construindo — 4 pilares</h2>
+<div class="pilar"><span class="pname">Dados proprietários que genérico não tem.</span> CNES / ANS / BigQuery Datasus. Vendor de PEP, equipamento de imagem, cartão de benefícios, tipo de unidade, densidade, rede. A cada rodada, refinamos os dados que buscamos pra chegar nas melhores contas.</div>
+<div class="pilar"><span class="pname">Segmentação por dor (PQS), não por demografia.</span> 4 PQS em paralelo: hospital retenção privada + governamental; clínica retenção diagnóstica + policlínica sobrecarregada. Mensagem diferente por persona (Superintendente, Dir Clínico, Dir Admin, Sócio-Dono, Dir Médico).</div>
+<div class="pilar"><span class="pname">Loop com time comercial no centro.</span> QA Tinder. Cada "sim" e "não" da Rai e da Thalita vira ajuste estrutural do próximo batch — não só sinal de reply. É o oposto de caixa-preta.</div>
+<div class="pilar"><span class="pname">Sistema que mede e aprende sozinho.</span> A cada rodada, medimos qual dor converte mais, qual persona abre, qual canal performa. O que funciona escala automaticamente no próximo batch; o que não funciona cai. Inteligência acumulada, não campanha que reseta.</div>
+
+<h2>Tração já validada</h2>
+<div class="traction">
+  <div>
+    <div class="number">84%</div>
+    <div class="caption">Hit rate C-PQS1<br/>(clínicas, Rai)</div>
+  </div>
+  <div>
+    <div class="number">4</div>
+    <div class="caption">PQS em teste paralelo<br/>(hospitais + clínicas)</div>
+  </div>
+  <div>
+    <div class="number">5</div>
+    <div class="caption">Personas com<br/>mensagem calibrada</div>
+  </div>
+  <div>
+    <div class="number">2</div>
+    <div class="caption">Dores novas validadas<br/>pelo time em abril</div>
+  </div>
+</div>
+
+<h2>Próximos 90 dias</h2>
+<ul>
+  <li>Fechar os 4 PQS com hit rate estável e <strong>escalar para 100×100</strong> (A/B entre 2 dores).</li>
+  <li>Integrar com Salesforce junto da consultoria — <strong>Salesforce como base da verdade</strong>, não depósito de lead.</li>
+  <li>Medir meeting book rate por PQS, ciclo médio e custo por SQL.</li>
+</ul>
+
+<h2>Se der certo, em 6–12 meses a Mevo tem</h2>
+<ul>
+  <li><strong>Modelo proprietário Mevo</strong> treinado com gravações de call de vendas — outbound na linguagem exata que o cliente hospitalar usa pra descrever a própria dor.</li>
+  <li><strong>Cauda longa automatizada</strong> — clínica pequena e média roda sozinha; time comercial só aparece quando o cliente levanta a mão.</li>
+  <li><strong>Executivos liberados pra fechar</strong> conta enterprise 1:1, com dossiê completo da conta antes de qualquer contato.</li>
+  <li><strong>Dashboard de conversão por PQS, por persona, por canal</strong> — decisão de campanha por dado, não por intuição.</li>
+  <li><strong>Salesforce limpo</strong> como fonte de verdade — sem os 4 mil registros órfãos de hoje.</li>
+</ul>
+
+<h2>O que precisa destravar</h2>
+<ul>
+  <li>Cruzamento da base de quem já é cliente da Mevo pra não rodar conta existente.</li>
+  <li>Integração com o fluxo de Salesforce junto da consultoria.</li>
+</ul>
+
+</body>
+</html>
